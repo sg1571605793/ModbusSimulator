@@ -15,11 +15,15 @@ ModbusRegister::ModbusRegister() {
 
 void ModbusRegister::setAddrAndCount(int addr, int count){
     int startCol = (addr / 10) * 10;
+    int base = 10;
+    if(mDisplayMode == DisplayMode::HEX){
+        base = 16;
+    }
     for(int i = 1; i < 11; i++){
         mValues[0][i] = startCol + (i-1) * 10;
         mValues[i][0] = i - 1;
-        mTable[0][i]->setText(QString::number(mValues[0][i]));
-        mTable[i][0]->setText(QString::number(mValues[i][0]));
+        mTable[0][i]->setText(QString::number(mValues[0][i], base));
+        mTable[i][0]->setText(QString::number(mValues[i][0], base));
     }
 
     int rangeMin = addr;
@@ -37,9 +41,13 @@ void ModbusRegister::setAddrAndCount(int addr, int count){
 }
 
 void ModbusRegister::flushTable(){
+    int base = 10;
+    if(mDisplayMode == DisplayMode::HEX){
+        base = 16;
+    }
     for(int row = 1; row < 11; row ++){
         for(int col = 1; col < 11; col++){
-            mTable[row][col]->setText(QString::number(mValues[row][col]));
+            mTable[row][col]->setText(QString::asprintf("%04X", mValues[row][col]));
         }
     }
 }
@@ -105,19 +113,21 @@ void ModbusRegister::createEditWin(){
     mLabEditValue.setText("Value:");
     mLabEditValue.setGeometry(30, 50, 40, 30);
 
+    static const QString STYLE_SHEET_BACK {"background-color: white; color: black; border: 1px #444 solid; border-radius: 2px;"};
+
     mTxtEditValue.setParent(&mEditWin);
     mTxtEditValue.setGeometry(80, 52, 80, 26);
-    mTxtEditValue.setStyleSheet("background-color: white; color: black; border: 1px #444 solid; border-radius: 2px;");
+    mTxtEditValue.setStyleSheet(STYLE_SHEET_BACK);
 
     mBtnEditCancel.setParent(&mEditWin);
     mBtnEditCancel.setGeometry(30, 90, 60, 26);
     mBtnEditCancel.setText("取消");
-    mBtnEditCancel.setStyleSheet("background-color: white; color: black; border: 1px #444 solid; border-radius: 2px;");
+    mBtnEditCancel.setStyleSheet(STYLE_SHEET_BACK);
 
     mBtnEditConfirm.setParent(&mEditWin);
     mBtnEditConfirm.setGeometry(100, 90, 60, 26);
     mBtnEditConfirm.setText("确定");
-    mBtnEditConfirm.setStyleSheet("background-color: white; color: black; border: 1px #444 solid; border-radius: 2px;");
+    mBtnEditConfirm.setStyleSheet(STYLE_SHEET_BACK);
 
     connect(&mBtnEditCancel, &QPushButton::clicked, this, [this]{
         mEditWin.hide();
@@ -125,7 +135,19 @@ void ModbusRegister::createEditWin(){
 
     connect(&mBtnEditConfirm, &QPushButton::clicked, this, [this]{
         int addr = mEditAddrVal.text().toUInt();
-        int value = mTxtEditValue.text().toUInt();
+        QString valstr = mTxtEditValue.text().toLower();
+        int value = 0;
+        if(valstr.startsWith("0x")){
+            value = valstr.mid(2).toUInt(nullptr, 16);
+        }else{
+            value = valstr.toUInt();
+        }
+        if(value > 65536){
+            mTxtEditValue.setStyleSheet(STYLE_SHEET_BACK + "color: red;");
+            return;
+        }
+        mTxtEditValue.setStyleSheet(STYLE_SHEET_BACK);
+
         emit modifyValue(addr, value);
         mEditWin.hide();
     });
@@ -138,5 +160,9 @@ void ModbusRegister::disenableAllInput(){
             ele->setEnabled(false);
         }
     }
+}
+
+void ModbusRegister::setDisplayMode(DisplayMode mode){
+    mDisplayMode = mode;
 }
 

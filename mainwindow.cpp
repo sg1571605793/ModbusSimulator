@@ -219,7 +219,12 @@ void MainWindow::on_btnOpenCom_clicked()
 
 void MainWindow::setSlaveConfig(){
     mSlaveId = ui->txtSlaveId->text().toInt();
-    mSlaveAddr = ui->txtAddr->text().toInt();
+    QString addrstr = ui->txtAddr->text().toLower();
+    if(addrstr.startsWith("0x")){
+        mSlaveAddr = addrstr.mid(2).toUInt(nullptr, 16);
+    }else{
+        mSlaveAddr = addrstr.toUInt();
+    }
 
     mSlaveRegisterCnt = ui->txtRegisterCnt->text().toInt();
     if(mSlaveRegisterCnt > 100){
@@ -235,7 +240,7 @@ void MainWindow::setSlaveConfig(){
 
 void MainWindow::on_btnConfirmConfig_clicked()
 {
-    QWidget *configs[] = {ui->txtSlaveId, ui->cbxFuncode, ui->txtAddr, ui->txtRegisterCnt};
+    QWidget *configs[] = {ui->txtSlaveId, ui->cbxFuncode, ui->txtAddr, ui->txtRegisterCnt, ui->rbtnHex, ui->rbtnDec};
     if(ui->btnConfirmConfig->isChecked()){
         setSlaveConfig();
         mRegisterWin.setAddrAndCount(mSlaveAddr, mSlaveRegisterCnt);
@@ -301,3 +306,15 @@ void MainWindow::setRegisterWinBtn(){
         mRegisterWin.disenableAllInput();
     }
 }
+
+void MainWindow::on_rbtnDec_clicked()
+{
+    mRegisterWin.setDisplayMode(ModbusRegister::DisplayMode::DEC);
+}
+
+
+void MainWindow::on_rbtnHex_clicked()
+{
+    mRegisterWin.setDisplayMode(ModbusRegister::DisplayMode::HEX);
+}
+

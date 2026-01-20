@@ -45,6 +45,10 @@ private slots:
 
     void on_btnConfirmConfig_clicked();
 
+    void on_rbtnDec_clicked();
+
+    void on_rbtnHex_clicked();
+
 private:
     Ui::MainWindow *ui;
     ModbusMode mModbusMode = ModbusMode::MASTER;

@@ -11,10 +11,15 @@ class ModbusRegister : public QWidget
 {
     Q_OBJECT
 public:
+    enum class DisplayMode{
+        DEC,
+        HEX
+    };
     ModbusRegister();
     void setAddrAndCount(int addr, int count);
     void setValues(int addr, const std::vector<uint16_t> &values);
     void disenableAllInput();
+    void setDisplayMode(DisplayMode mode);
 
 signals:
     void modifyValue(int addr, int value);
@@ -28,6 +33,7 @@ private:
 private:
     std::array<std::array<QPushButton*, 11>, 11> mTable;
     int mValues[11][11];
+    DisplayMode mDisplayMode = DisplayMode::DEC;
 
     QWidget mEditWin;
     QLabel mEditAddr;

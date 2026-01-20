@@ -224,7 +224,7 @@ void ModbusSlaveTCP::handleClient(int sock_client)
     // 设置此客户端的套接字
     modbus_set_socket(client_handle, sock_client);
 
-    modbus_set_indication_timeout(client_handle, 0, TIME_OUT * 1000);
+    // modbus_set_indication_timeout(client_handle, 0, TIME_OUT * 1000);
 
     while (!mFinish)
     {
