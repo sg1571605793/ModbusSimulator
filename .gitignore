@@ -82,3 +82,6 @@ CMakeLists.txt.user*
 /build*/
 
 /Version*/
+*.7z
+*.zip
+*.rar
