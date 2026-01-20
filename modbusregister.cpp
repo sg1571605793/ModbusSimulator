@@ -41,13 +41,16 @@ void ModbusRegister::setAddrAndCount(int addr, int count){
 }
 
 void ModbusRegister::flushTable(){
-    int base = 10;
-    if(mDisplayMode == DisplayMode::HEX){
-        base = 16;
-    }
+
     for(int row = 1; row < 11; row ++){
         for(int col = 1; col < 11; col++){
-            mTable[row][col]->setText(QString::asprintf("%04X", mValues[row][col]));
+            QString val;
+            if(mDisplayMode == DisplayMode::HEX){
+                val = QString::asprintf("%04X", mValues[row][col]);
+            }else{
+                val = QString::number(mValues[row][col]);
+            }
+            mTable[row][col]->setText(val);
         }
     }
 }
