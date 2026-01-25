@@ -90,7 +90,7 @@ void MainWindow::on_btnTcp_clicked()
             ui->btnTcp->setText("监听");
         }
         ui->btnTcp->setStyleSheet("");
-        ui->btnConfirmConfig->click();
+        modifyConnectState(false);
         return;
     }
     // 未连接
@@ -101,7 +101,7 @@ void MainWindow::on_btnTcp_clicked()
         master->setTarget(ui->txtIp->text().toStdString(), ui->txtPort->text().toUInt());
         master->setSlave(ui->txtSlaveId->text().toInt());
         if(master->open()){
-            ui->btnConfirmConfig->click();
+            modifyConnectState(true);
             mMaster = master;
             ui->btnTcp->setText("断开");
             ui->btnTcp->setStyleSheet(BTN_BACK_COLOR);
@@ -123,7 +123,7 @@ void MainWindow::on_btnTcp_clicked()
         }
         slave->createRegisterMapping(registerInfo);
         if(slave->open()){
-            ui->btnConfirmConfig->click();
+            modifyConnectState(true);
             mSlave = slave;
             ui->btnTcp->setText("关闭");
             ui->btnTcp->setStyleSheet(BTN_BACK_COLOR);
@@ -167,7 +167,7 @@ void MainWindow::on_btnOpenCom_clicked()
         ui->btnOpenCom->setText("打开串口");
         ui->btnOpenCom->setStyleSheet("");
         setConnectMode(ConnectMode::RTU);
-        ui->btnConfirmConfig->click();
+        modifyConnectState(false);
         return;
     }
 
@@ -181,7 +181,7 @@ void MainWindow::on_btnOpenCom_clicked()
                          );
         master->setSlave(ui->txtSlaveId->text().toInt());
         if(master->open()){
-            ui->btnConfirmConfig->click();
+            modifyConnectState(true);
             mMaster = master;
             ui->btnOpenCom->setText("关闭串口");
             ui->btnOpenCom->setStyleSheet(BTN_BACK_COLOR);
@@ -206,7 +206,7 @@ void MainWindow::on_btnOpenCom_clicked()
         }
         slave->createRegisterMapping(registerInfo);
         if(slave->open()){
-            ui->btnConfirmConfig->click();
+            modifyConnectState(true);
             mSlave = slave;
             ui->btnOpenCom->setText("关闭串口");
             ui->btnOpenCom->setStyleSheet(BTN_BACK_COLOR);
@@ -318,3 +318,8 @@ void MainWindow::on_rbtnHex_clicked()
     mRegisterWin.setDisplayMode(ModbusRegister::DisplayMode::HEX);
 }
 
+void MainWindow::modifyConnectState(bool flag){
+    if(flag != ui->btnConfirmConfig->isChecked()){
+        ui->btnConfirmConfig->click();
+    }
+}

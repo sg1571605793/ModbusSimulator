@@ -79,5 +79,7 @@ private:
     void flushDataTable();
 
     void setRegisterWinBtn();
+
+    void modifyConnectState(bool flag);
 };
 #endif // MAINWINDOW_H
