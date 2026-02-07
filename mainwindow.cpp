@@ -5,8 +5,6 @@
 #include <QSerialPortInfo>
 #include <QDebug>
 
-const char BTN_BACK_COLOR[] = "background-color: rgb(0, 120, 212);";
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -89,8 +87,8 @@ void MainWindow::on_btnTcp_clicked()
         }else{
             ui->btnTcp->setText("监听");
         }
-        ui->btnTcp->setStyleSheet("");
         modifyConnectState(false);
+        ui->btnTcp->setChecked(false);
         return;
     }
     // 未连接
@@ -104,10 +102,12 @@ void MainWindow::on_btnTcp_clicked()
             modifyConnectState(true);
             mMaster = master;
             ui->btnTcp->setText("断开");
-            ui->btnTcp->setStyleSheet(BTN_BACK_COLOR);
             mListening = true;
             setConnectMode(ConnectMode::TCP);
             setRegisterWinBtn();
+            ui->btnTcp->setChecked(true);
+        }else{
+            ui->btnTcp->setChecked(false);
         }
     }else{
         // 从站模式
@@ -126,10 +126,12 @@ void MainWindow::on_btnTcp_clicked()
             modifyConnectState(true);
             mSlave = slave;
             ui->btnTcp->setText("关闭");
-            ui->btnTcp->setStyleSheet(BTN_BACK_COLOR);
             mListening = true;
             setConnectMode(ConnectMode::TCP);
             setRegisterWinBtn();
+            ui->btnTcp->setChecked(true);
+        }else{
+            ui->btnTcp->setChecked(false);
         }
     }
 }
@@ -165,7 +167,6 @@ void MainWindow::on_btnOpenCom_clicked()
             mSlave->close();
         }
         ui->btnOpenCom->setText("打开串口");
-        ui->btnOpenCom->setStyleSheet("");
         setConnectMode(ConnectMode::RTU);
         modifyConnectState(false);
         return;
@@ -184,10 +185,12 @@ void MainWindow::on_btnOpenCom_clicked()
             modifyConnectState(true);
             mMaster = master;
             ui->btnOpenCom->setText("关闭串口");
-            ui->btnOpenCom->setStyleSheet(BTN_BACK_COLOR);
             mConnecting = true;
             setConnectMode(ConnectMode::RTU);
             setRegisterWinBtn();
+            ui->btnOpenCom->setChecked(true);
+        }else{
+            ui->btnOpenCom->setChecked(false);
         }
     }else{
         auto slave = std::make_shared<ModbusSlaveRTU>();
@@ -209,10 +212,12 @@ void MainWindow::on_btnOpenCom_clicked()
             modifyConnectState(true);
             mSlave = slave;
             ui->btnOpenCom->setText("关闭串口");
-            ui->btnOpenCom->setStyleSheet(BTN_BACK_COLOR);
             mConnecting = true;
             setConnectMode(ConnectMode::RTU);
             setRegisterWinBtn();
+            ui->btnOpenCom->setChecked(true);
+        }else{
+            ui->btnOpenCom->setChecked(false);
         }
     }
 }
@@ -287,6 +292,15 @@ void MainWindow::flushDataTable(){
         }else{
             std::vector<uint16_t> regvals = mMaster->readInputRegister(mSlaveAddr, mSlaveRegisterCnt);
             flushData(regvals);
+        }
+
+        if(!mMaster->connected()){
+            // master disconnect
+            if(mConncetMode == ConnectMode::RTU){
+                ui->btnOpenCom->click();
+            } else{
+                ui->btnTcp->click();
+            }
         }
     }else{
         if(mFuncode == 3){

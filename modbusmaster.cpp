@@ -1,10 +1,23 @@
 #include "modbusmaster.h"
+#include "Log.hpp"
 
 ModbusMaster::ModbusMaster() {}
 
 void ModbusMaster::setSlave(int slaveId)
 {
     mSlaveId = slaveId;
+}
+
+bool ModbusMaster::checkConnect(){
+    // Log("error code: ", errno);
+    if (errno == ECONNRESET || errno == ETIMEDOUT || errno == EPIPE
+        // errno = 0, 表示slave主动关闭， errno = 138表示从站直接退出，为正常关闭
+        || errno == 138 || errno == 0) {
+        modbus_close(mHandle.get());
+        mHandle.reset();
+        return false;
+    }
+    return true;
 }
 
 uint16_t ModbusMaster::readHoldRegister(unsigned int addr)
@@ -16,6 +29,7 @@ uint16_t ModbusMaster::readHoldRegister(unsigned int addr)
     uint16_t res;
     if (modbus_read_registers(mHandle.get(), addr, 1, &res) == -1)
     {
+        checkConnect();
         return 0;
     }
     else
@@ -33,6 +47,8 @@ std::vector<uint16_t> ModbusMaster::readHoldRegister(unsigned int addr, unsigned
     std::vector<uint16_t> res(len);
     if (modbus_read_registers(mHandle.get(), addr, len, res.data()) == -1)
     {
+        Log("Failed to read holdregister.");
+        checkConnect();
         return {};
     }
     else
@@ -50,6 +66,7 @@ uint16_t ModbusMaster::readInputRegister(unsigned int addr)
     uint16_t res;
     if (modbus_read_input_registers(mHandle.get(), addr, 1, &res) == -1)
     {
+        checkConnect();
         return 0;
     }
     else
@@ -67,6 +84,7 @@ std::vector<uint16_t> ModbusMaster::readInputRegister(unsigned int addr, unsigne
     std::vector<uint16_t> res(len);
     if (modbus_read_input_registers(mHandle.get(), addr, len, res.data()) == -1)
     {
+        checkConnect();
         return {};
     }
     else
@@ -86,6 +104,10 @@ void ModbusMasterTcp::setTarget(const std::string ip, uint16_t port)
     mPort = port;
 }
 
+bool ModbusMaster::connected() const {
+    return mHandle != nullptr;
+}
+
 bool ModbusMasterTcp::open()
 {
     modbus_t *ctx = modbus_new_tcp(mIp.c_str(), mPort);
@@ -103,6 +125,7 @@ bool ModbusMasterTcp::open()
                   {modbus_close(ctx); modbus_free(ctx); });
     return true;
 }
+
 
 void ModbusMasterRtu::setTarget(const std::string &com, uint32_t baud, char parity, int dataBits, int stopBits)
 {

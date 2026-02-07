@@ -24,10 +24,14 @@ public:
     virtual bool open() = 0;
     void close();
 
+    virtual bool connected() const;
+
 protected:
     static constexpr int UNSET_SLAVE_ID = -1;
     std::shared_ptr<modbus_t> mHandle = nullptr;
     int mSlaveId = UNSET_SLAVE_ID;
+private:
+    bool checkConnect();
 };
 
 class ModbusMasterTcp : public ModbusMaster
@@ -48,9 +52,9 @@ public:
 private:
     std::string mCom;
     uint32_t mBaud;
-    char mParity;
-    int mDataBits;
-    int mStopBits;
+    char mParity = 'N';
+    int mDataBits = 9;
+    int mStopBits = 1;
 };
 
 #endif // MODBUSMASTER_H

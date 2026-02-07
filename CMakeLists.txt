@@ -18,6 +18,7 @@ qt_add_executable(ModbusSimulator
     modbusmaster.h modbusmaster.cpp
     modbusslave.h modbusslave.cpp
     modbusregister.h modbusregister.cpp
+    Log.hpp
 )
 
 target_link_libraries(ModbusSimulator
