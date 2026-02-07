@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <QKeyEvent>
 
 class ModbusRegister : public QWidget
 {
@@ -29,6 +30,8 @@ private:
     void createWidget();
     void init();
     void createEditWin();
+
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     std::array<std::array<QPushButton*, 11>, 11> mTable;

@@ -3,6 +3,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <QKeyEvent>
 
 constexpr int WIN_HEIGHT = 440;
 constexpr int WIN_WIDTH = 910;
@@ -133,6 +134,7 @@ void ModbusRegister::createEditWin(){
     mBtnEditConfirm.setStyleSheet(STYLE_SHEET_BACK);
 
     connect(&mBtnEditCancel, &QPushButton::clicked, this, [this]{
+        mTxtEditValue.clear();
         mEditWin.hide();
     });
 
@@ -154,6 +156,7 @@ void ModbusRegister::createEditWin(){
         emit modifyValue(addr, value);
         mEditWin.hide();
     });
+
     mEditWin.hide();
 }
 
@@ -169,3 +172,16 @@ void ModbusRegister::setDisplayMode(DisplayMode mode){
     mDisplayMode = mode;
 }
 
+
+void ModbusRegister::keyReleaseEvent(QKeyEvent *event){
+    if(mEditWin.isHidden()){
+        return;
+    }
+
+    int key = event->key();
+    if(key == Qt::Key_Escape){
+        mBtnEditCancel.click();
+    }else if(key == Qt::Key_Return){
+        mBtnEditConfirm.click();
+    }
+}
